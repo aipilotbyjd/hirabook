@@ -44,8 +44,8 @@ export const addWorkEntry = (entry) => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
-        `INSERT INTO work_entries (date, type, hours, earnings, notes, synced) VALUES (?, ?, ?, ?, ?, ?);`,
-        [entry.date, entry.type, entry.hours, entry.earnings, entry.notes, entry.synced ? 1 : 0],
+        `INSERT INTO work_entries (date, type, hours, earnings, notes, synced) VALUES (?, ?, ?, ?, ?, 0);`,
+        [entry.date, entry.type, entry.hours, entry.earnings, entry.notes],
         (_, result) => resolve(result),
         (_, error) => reject(error)
       );
@@ -66,11 +66,50 @@ export const getUnsyncedWorkEntries = () => {
   });
 };
 
-export const markWorkEntryAsSynced = (id) => {
+export const markWorkEntryAsSynced = (id: number) => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
         `UPDATE work_entries SET synced = 1 WHERE id = ?;`,
+        [id],
+        (_, result) => resolve(result),
+        (_, error) => reject(error)
+      );
+    });
+  });
+};
+
+export const addPayment = (payment) => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `INSERT INTO payments (date, amount, source, remarks, status, synced) VALUES (?, ?, ?, ?, ?, 0);`,
+        [payment.date, payment.amount, payment.source, payment.remarks, payment.status],
+        (_, result) => resolve(result),
+        (_, error) => reject(error)
+      );
+    });
+  });
+};
+
+export const getUnsyncedPayments = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `SELECT * FROM payments WHERE synced = 0;`,
+        [],
+        (_, { rows: { _array } }) => resolve(_array),
+        (_, error) => reject(error)
+      );
+    });
+  });
+};
+
+export const markPaymentAsSynced = (id: number) => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `UPDATE payments SET synced = 1 WHERE id = ?;`,
         [id],
         (_, result) => resolve(result),
         (_, error) => reject(error)

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 type LocalizedTextProps = {
   translationKey: string;
-  values?: any;
+  values?: Record<string, any>;
 } & TextProps;
 
 export const LocalizedText: React.FC<LocalizedTextProps> = ({ translationKey, values, style, ...props }) => {
